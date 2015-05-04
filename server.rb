@@ -1,6 +1,16 @@
 require 'socket'
+require 'byebug'
 
 webserver = TCPServer.new('127.0.0.1', 5000)
+
+d_index = ARGV.index("-d")
+
+if d_index.nil?
+  public_dir = "public"
+else
+  public_dir = ARGV[d_index + 1]
+end
+puts "Let's use #{public_dir}"
 
 while (session = webserver.accept)
   request = session.gets
@@ -11,12 +21,14 @@ while (session = webserver.accept)
 
   	if filename == ""
   		filename = "index.html"
+    else
+      filename = filename.prepend("#{public_dir}/")
   	end
 
     begin
   		displayfile = File.open(filename, 'r')
         session.print "HTTP/1.1 200 OK\r\n" +
-                     "Content-Type: text/html\r\n" +
+                    #  "Content-Type: text/html\r\n" +
                      "Connection: close\r\n"
 
         session.print "\r\n"
